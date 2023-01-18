@@ -1,21 +1,36 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
+import createError from 'http-errors';
+import express from'express';
+import path from'path';
+import cookieParser from'cookie-parser';
+import logger from'morgan';
+import indexRouter from './routes/index.js';
+import usersRouter from './routes/users.js';
+import Dishes from './models/dishes.js';
+import mongoose from 'mongoose';
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const url = 'mongodb://localhost:27017/conFusion'
+const connect = mongoose.connect(url);
 
-var app = express();
-var dishRouter = require('./routes/dishRouter');
-var promoRouter = require('./routes/promoRouter');
-var leaderRouter = require('./routes/leaderRouter');
+connect.then(db=>{
+  console.log('connect to database successfully');
+},(err)=>{
+  console.log(err);
+});
+
+const app = express();
+import dishRouter from './routes/dishRouter.js';
+import promoRouter from './routes/promoRouter.js';
+import leaderRouter from './routes/leaderRouter.js';
 
 app.use('/dishes',dishRouter);
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 // view engine setup
+
+import {fileURLToPath} from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
@@ -44,4 +59,4 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-module.exports = app;
+export default app;
