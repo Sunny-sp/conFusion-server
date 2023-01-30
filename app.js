@@ -33,32 +33,47 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('1234-453-356-456-456454'));
 
 //Authentication
 function authenticate(req, res, next) {
-  const authHeader = req.headers.authorization;
-  if(!authHeader){
-    const err = new Error('You are not authorized');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    next(err);
-    return;
-  }
-  const authData = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-  const userName = authData[0];
-  const password = authData[1];
 
-  if(userName === 'admin' && password === 'password'){
-    next(); //autherized and go to next api calls
+  if(!req.signedCookies.user){
+    const authHeader = req.headers.authorization;
+    if(!authHeader){
+      const err = new Error('You are not authorized');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      next(err);
+      return;
+    }
+    const authData = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+    const userName = authData[0];
+    const password = authData[1];
+
+    if(userName === 'admin' && password === 'password'){
+      res.cookie('user','admin',{signed: true});
+      next(); //autherized and go to next api calls
+    }
+    else{
+      const err = new Error('Please provide valid user credentials');
+      res.setHeader('WWW-Authenticate', 'Basic');
+      err.status = 401;
+      next(err);
+      return;
+    }
   }
   else{
-    const err = new Error('Please provide valid user credentials');
-    res.setHeader('WWW-Authenticate', 'Basic');
-    err.status = 401;
-    next(err);
-    return;
-  }
+    if(req.signedCookies.user === 'admin'){
+      next();
+    }
+    else{
+      const err = new Error('you are not autherized');
+      err.status = 401;
+      next(err);
+      return;
+    }
+}
 }
 app.use(authenticate);
 app.use(express.static(path.join(__dirname, 'public')));
