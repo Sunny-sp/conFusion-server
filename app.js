@@ -5,14 +5,13 @@ import cookieParser from'cookie-parser';
 import logger from'morgan';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
-import Dishes from './models/dishes.js';
 import mongoose from 'mongoose';
 
 const url = 'mongodb://localhost:27017/conFusion'
 const connect = mongoose.connect(url);
 
 connect.then(db=>{
-  console.log('connect to database successfully');
+  console.log('connected to database successfully');
 },(err)=>{
   console.log(err);
 });

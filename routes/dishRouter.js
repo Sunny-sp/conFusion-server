@@ -18,6 +18,7 @@ dishRouter.route('/')
     Dishes.create(req.body)
     .then(dish => {
         console.log('created dish',dish);
+        res.statusCode =200;
         res.setHeader('Content-Type','application/json');
         res.json(dish);
     })
@@ -176,7 +177,7 @@ dishRouter.route('/:dishId/comments/:commentsId')
             dish.save();
             res.statusCode =200;
             res.setHeader('Content-Type','application/json');
-            res.json(dish);
+            res.json(dish.comments.id(req.params.commentsId));
         }
         else if(dish == null){
             err = new Error('Dish' + req.params.dishId+ 'not found!');
