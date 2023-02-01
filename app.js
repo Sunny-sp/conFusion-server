@@ -1,11 +1,12 @@
 import createError from 'http-errors';
 import express from'express';
 import path from'path';
-import cookieParser from'cookie-parser';
+// import cookieParser from'cookie-parser';
 import logger from'morgan';
 import indexRouter from './routes/index.js';
-import usersRouter from './routes/users.js';
+import usersRouter from './routes/userRouter.js';
 import mongoose from 'mongoose';
+import session from 'express-session';
 
 const url = 'mongodb://localhost:27017/conFusion'
 const connect = mongoose.connect(url);
@@ -24,6 +25,7 @@ import leaderRouter from './routes/leaderRouter.js';
 // view engine setup
 
 import {fileURLToPath} from 'url';
+import { signedCookie } from 'cookie-parser';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -33,53 +35,37 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('1234-453-356-456-456454'));
+// app.use(cookieParser('1234-453-356-456-456454'));
+app.use(session({
+  name: 'session-Id',
+  secret: '1234-453-356-456-456454',
+  saveUninitialized: false,
+  resave: false,
+}));
 
 //Authentication
 function authenticate(req, res, next) {
-
-  if(!req.signedCookies.user){
-    const authHeader = req.headers.authorization;
-    if(!authHeader){
-      const err = new Error('You are not authorized');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      next(err);
-      return;
-    }
-    const authData = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    const userName = authData[0];
-    const password = authData[1];
-
-    if(userName === 'admin' && password === 'password'){
-      res.cookie('user','admin',{signed: true});
-      next(); //autherized and go to next api calls
-    }
-    else{
-      const err = new Error('Please provide valid user credentials');
-      res.setHeader('WWW-Authenticate', 'Basic');
-      err.status = 401;
-      next(err);
-      return;
-    }
+  console.log(req.session);
+  if(!req.session.user){
+    const err = new Error('You are not authenticated!');
+    err.status = 401;
+    next(err);
+  }
+  else if(req.session.user === 'authenticated'){
+    next();
   }
   else{
-    if(req.signedCookies.user === 'admin'){
-      next();
-    }
-    else{
-      const err = new Error('you are not autherized');
-      err.status = 401;
-      next(err);
-      return;
-    }
+    const err = new Error('You are not authenticated!');
+    err.status = 401;
+    next(err);
+  }
 }
-}
-app.use(authenticate);
-app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+// authenticate
+app.use(authenticate);
+app.use(express.static(path.join(__dirname, 'public')));
+// after authentication now can access other end-points
 app.use('/dishes',dishRouter);
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
