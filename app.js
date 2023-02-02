@@ -7,8 +7,10 @@ import indexRouter from './routes/index.js';
 import usersRouter from './routes/userRouter.js';
 import mongoose from 'mongoose';
 import session from 'express-session';
+import passport from 'passport';
+import './authenticate.js';
 
-const url = 'mongodb://localhost:27017/conFusion'
+const url = 'mongodb://localhost:27017/conFusion';
 const connect = mongoose.connect(url);
 
 connect.then(db=>{
@@ -25,7 +27,6 @@ import leaderRouter from './routes/leaderRouter.js';
 // view engine setup
 
 import {fileURLToPath} from 'url';
-import { signedCookie } from 'cookie-parser';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,28 +43,25 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
 }));
-
-//Authentication
-function authenticate(req, res, next) {
-  console.log(req.session);
-  if(!req.session.user){
+app.use(passport.initialize());
+app.use(passport.session());
+//Authentication function
+function auth(req, res, next) {
+  console.log(req.user);
+  if(!req.user){
     const err = new Error('You are not authenticated!');
-    err.status = 401;
+    err.status = 403;
     next(err);
-  }
-  else if(req.session.user === 'authenticated'){
-    next();
   }
   else{
-    const err = new Error('You are not authenticated!');
-    err.status = 401;
-    next(err);
+    next();
   }
 }
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 // authenticate
-app.use(authenticate);
+app.use(auth);
 app.use(express.static(path.join(__dirname, 'public')));
 // after authentication now can access other end-points
 app.use('/dishes',dishRouter);
