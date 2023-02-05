@@ -1,16 +1,15 @@
 import createError from 'http-errors';
 import express from'express';
 import path from'path';
-// import cookieParser from'cookie-parser';
 import logger from'morgan';
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/userRouter.js';
 import mongoose from 'mongoose';
-import session from 'express-session';
 import passport from 'passport';
 import './authenticate.js';
+import config from './config.js';
 
-const url = 'mongodb://localhost:27017/conFusion';
+const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
 connect.then(db=>{
@@ -37,31 +36,13 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser('1234-453-356-456-456454'));
-app.use(session({
-  name: 'session-Id',
-  secret: '1234-453-356-456-456454',
-  saveUninitialized: false,
-  resave: false,
-}));
+
 app.use(passport.initialize());
-app.use(passport.session());
-//Authentication function
-function auth(req, res, next) {
-  console.log(req.user);
-  if(!req.user){
-    const err = new Error('You are not authenticated!');
-    err.status = 403;
-    next(err);
-  }
-  else{
-    next();
-  }
-}
 
 app.use('/', indexRouter);
+// authentications
+
 app.use('/users', usersRouter);
-// authenticate
-app.use(auth);
 app.use(express.static(path.join(__dirname, 'public')));
 // after authentication now can access other end-points
 app.use('/dishes',dishRouter);
