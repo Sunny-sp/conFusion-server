@@ -7,13 +7,20 @@
 import app from '../app.js';
 import debug from 'debug';
 import http from 'http';
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import {fileURLToPath} from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 /**
  * Get port from environment and store in Express.
  */
 
 const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
+app.set('secPort', port + 443);
 
 /**
  * Create HTTP server.
@@ -22,12 +29,29 @@ app.set('port', port);
 const server = http.createServer(app);
 
 /**
+ * Create HTTPS server.
+ */
+const options = {
+  key: fs.readFileSync(path.join(__dirname, '/private.key'),'utf8'),
+  cert: fs.readFileSync(path.join(__dirname, '/certificate.crt'),'utf8')
+}
+const secureServer = https.createServer(options, app);
+/**
  * Listen on provided port, on all network interfaces.
  */
 
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
+/**
+ * Listen on provided  secure port, on all network interfaces.
+ */
+secureServer.listen(app.get('secPort'), ()=>{
+  console.log('Server listening on port'+ app.get('secPort'));
+});
+
+secureServer.on('error', onError);
+secureServer.on('listening',onListening);
 
 /**
  * Normalize a port into a number, string, or false.

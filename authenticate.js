@@ -14,15 +14,12 @@ import app from "./app.js";
 // serialize and deserialize will use salt and mix it with username or password and make a hash data
 // check in database
 
-//there is not export from this file since it is a config file just import it before using.
-//It will automatically take care of things
-
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 export const getToken = (user_id)=>{
-    return jwt.sign(user_id, config.secretKey,{expiresIn: '5h' });
+    return jwt.sign(user_id, config.secretKey,{expiresIn: '1h' });
 }
 // options object
 const opts ={};
@@ -46,3 +43,15 @@ export const jwtPassport = passport.use(new JwtStrategy(opts, (jwt_payload, done
 }));
 
 export const verifyUser = passport.authenticate('jwt',{session:false});
+// here after verifyUser middleware called it returns (req, res, next) so further middlewares (ex verifyAdmin) should
+// have  (req, res, next) parameters to run properly
+export const verifyAdmin = (req, res, next)=>{
+    if(req.user.admin === true){
+        next();
+    }
+    else{
+        const err = new Error('You are not authorized to perform this operation!');
+        err.status= 403;
+        next(err);
+    }
+}
