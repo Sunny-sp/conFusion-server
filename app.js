@@ -11,6 +11,7 @@ import config from './config.js';
 import dishRouter from './routes/dishRouter.js';
 import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
+import cors from 'cors';
 
 const url = config.mongoUrl;
 const connect = mongoose.connect(url);
@@ -28,7 +29,10 @@ app.use('*',(req, res, next)=>{
     return next();
   }
   else{
-    res.redirect('https://'+req.hostname+':'+ app.get('secPort')+ req.url);
+    // with status=307 we are redirecting the get, post, put, delete calls from http to https
+    // without 307 it will do only Get calls after redirecting to https
+    // for all (Get, Post, Put, Delete) calls
+    res.redirect(307, 'https://'+req.hostname+':'+ app.get('secPort') + req.originalUrl);
   }
 });
 // view engine setup
@@ -47,6 +51,7 @@ app.use(express.urlencoded({ extended: false }));
 // app.use(cookieParser('1234-453-356-456-456454'));
 
 app.use(passport.initialize());
+app.use(cors());
 
 app.use('/', indexRouter);
 // authentications

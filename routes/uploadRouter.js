@@ -2,6 +2,7 @@ import express from "express";
 import * as authenticate from '../authenticate.js';
 import bodyParser from "body-parser";
 import multer from "multer";
+import * as cors from './cors.js';
 
 const uploadRouter = express.Router();
 
@@ -25,11 +26,14 @@ const imageFileFilter = (req, file, cb)=>{
 const upload = multer({storage:storage, fileFilter: imageFileFilter });
 
 uploadRouter.route('/')
-.get(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
+.options(cors.corsWithOptions, (req, res)=>{
+    res.sendStatus = 200;
+})
+.get(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
     res.statusCode = 403;
     res.end('GET call is not supported on /imageUpload');
 })
-.post(authenticate.verifyUser, authenticate.verifyAdmin, upload.single('imageFile'), (req, res, next)=>{
+.post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, upload.single('imageFile'), (req, res, next)=>{
     if(!req.file){
         res.statusCode = 403;
         res.end('please attach an image file!');
@@ -38,11 +42,11 @@ uploadRouter.route('/')
     res.setHeader('Content-Type','application/json');
     res.json(req.file);
 })
-.put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
+.put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
     res.statusCode = 403;
     res.end('PUT call is not supported on /imageUpload');
 })
-.delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
+.delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next)=>{
     res.statusCode = 403;
     res.end('GET call is not supported on /imageUpload');
 });
