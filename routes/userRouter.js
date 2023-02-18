@@ -76,3 +76,14 @@ userRouter.get('/logout', cors.corsWithOptions, (req, res, next)=>{
   }
 });
 export default userRouter;
+// fixes: 1) export NODE_TLS_REJECT_UNAUTHORIZED=0 set this environment variable to by-pass ssl cert
+// 2) add few facebook accounts for testing in tester option on facebook/developer site
+// 3) Go live on facebook/developer site
+userRouter.get('/facebook/token', cors.corsWithOptions, passport.authenticate('facebook-token'), (req, res, next)=>{
+  if(req.user){
+    const token = authenticate.getToken({_id: req.user._id});
+    res.statusCode = 200;
+    res.setHeader('Content-Type','application/json');
+    res.json({success:true, token:token, status:'You are logged-in successfully!'});
+  }
+});

@@ -32,8 +32,8 @@ const server = http.createServer(app);
  * Create HTTPS server.
  */
 const options = {
-  key: fs.readFileSync(path.join(__dirname, '/private.key'),'utf8'),
-  cert: fs.readFileSync(path.join(__dirname, '/certificate.crt'),'utf8')
+  key: fs.readFileSync(path.join(__dirname, 'private.key')),
+  cert: fs.readFileSync(path.join(__dirname, 'certificate.pem'))
 }
 const secureServer = https.createServer(options, app);
 /**
