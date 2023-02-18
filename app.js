@@ -12,7 +12,7 @@ import dishRouter from './routes/dishRouter.js';
 import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
 import cors from 'cors';
-
+import favoriteRouter from './routes/favoriteRouter.js';
 const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
@@ -63,6 +63,7 @@ app.use('/dishes',dishRouter);
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 app.use('/imageUpload',uploadRouter);
+app.use('/favourites', favoriteRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
