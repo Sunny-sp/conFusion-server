@@ -22,8 +22,6 @@ favoriteRouter.route('/')
 })
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next)=>{
     Favorites.findOne({user: req.user._id})
-    .populate('dishes')
-    .populate('user')
     .then(favorite => {
         if(favorite !== null){
             let isNewDish = true;
@@ -74,8 +72,6 @@ favoriteRouter.route('/')
 })
 .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next)=>{
     Favorites.remove({})
-    .populate('dishes')
-    .populate('user')
     .then(resp =>{
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -87,8 +83,6 @@ favoriteRouter.route('/')
 favoriteRouter.route('/:dishId')
 .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next)=>{
     Favorites.findOne({user: req.user._id})
-    .populate('dishes')
-    .populate('user')
     .then(favorite => {
         if(favorite !== null){
             let isNewDish = true;
@@ -107,7 +101,7 @@ favoriteRouter.route('/:dishId')
             }
             else{
                 res.statusCode = 403;
-                res.json({err:'Please select new dishes to add into favorite dish list!'})
+                res.json({err:'This dish already exist in your favorite list!'});
             }
         }
         else{
@@ -126,14 +120,20 @@ favoriteRouter.route('/:dishId')
 })
 .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next)=>{
     Favorites.findOne({user: req.user._id})
-    .populate('dishes')
-    .populate('user')
     .then(favorite => {
-        favorite.dishes.pop(req.params.dishId);
-        favorite.save();
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(favorite);
+        const filteredList = favorite.dishes.filter(dishId => dishId.equals(req.params.dishId));
+        console.log('filtered: '+ filteredList);
+        if(filteredList.length>0){
+            favorite.dishes.remove(req.params.dishId);
+            favorite.save();
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(favorite);
+        }
+        else{
+            res.statusCode = 403;
+            res.json({err: 'This dish does not exit in your favorite list!'})
+        }
     })
 });
 
