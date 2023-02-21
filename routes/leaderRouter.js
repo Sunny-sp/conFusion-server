@@ -12,7 +12,7 @@ leaderRouter.route('/')
     res.sendStatus = 200;
 })
 .get(cors.openCors, (req, res, next)=>{
-    Leaders.find({})
+    Leaders.find(req.query)
     .then(leaders => {
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');

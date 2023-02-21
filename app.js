@@ -13,6 +13,7 @@ import promoRouter from './routes/promoRouter.js';
 import leaderRouter from './routes/leaderRouter.js';
 import cors from 'cors';
 import favoriteRouter from './routes/favoriteRouter.js';
+import commentRouter from './routes/commentRouter.js';
 const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
@@ -60,6 +61,7 @@ app.use('/users', usersRouter);
 app.use(express.static(path.join(__dirname, 'public')));
 // after authentication now can access other end-points
 app.use('/dishes',dishRouter);
+app.use('/comments', commentRouter)
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 app.use('/imageUpload',uploadRouter);

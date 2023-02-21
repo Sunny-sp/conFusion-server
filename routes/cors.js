@@ -1,6 +1,6 @@
 import cors from 'cors';
 
-const whiteList = ['http://localhost:3000', 'https://localhost:3443'];
+const whiteList = ['http://localhost:3000', 'https://localhost:3443', 'https://computer:3001'];
 
 export const corsOptionsDelegate = {
     origin: function (origin, callback) {

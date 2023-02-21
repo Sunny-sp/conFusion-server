@@ -9,6 +9,7 @@ const userRouter = express.Router();
 userRouter.use(bodyParser.json());
 
 /* GET users listing. */
+userRouter.route('*', cors.corsWithOptions, authenticate.verifyUser, (req, res)=>{ res.sendStatus(200)});
 userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
   User.find({})
   .then(users=>{
@@ -21,46 +22,66 @@ userRouter.get('/', cors.corsWithOptions, authenticate.verifyUser, authenticate.
 
 userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
   User.register(new User({username: req.body.username}), req.body.password, (err, user) => {
-      if (err) {
-        res.statusCode = 500;
-        res.setHeader('Content-Type', 'application/json');
-        res.json({
-          err: err
-        });
-      } else {
-        if (req.body.firstname) {
-          user.firstname = req.body.firstname;
-        }
-        if (req.body.lastname) {
-          user.lastname = req.body.lastname;
-        }
-        user.save((err, user) => {
-          passport.authenticate('local')(req, res, () => {
-            if (err) {
-              res.statusCode = 500;
-              res.setHeader('Content-Type', 'application/json');
-              res.json({
-                err: err
-              });
-              return;
-            }
-            res.statusCode = 200;
+    if (err) {
+      res.statusCode = 500;
+      res.setHeader('Content-Type', 'application/json');
+      res.json({
+        err: err
+      });
+    } else {
+      if (req.body.firstname) {
+        user.firstname = req.body.firstname;
+      }
+      if (req.body.lastname) {
+        user.lastname = req.body.lastname;
+      }
+      user.save((err, user) => {
+        passport.authenticate('local')(req, res, () => {
+          if (err) {
+            res.statusCode = 500;
             res.setHeader('Content-Type', 'application/json');
             res.json({
-              success: true,
-              status: 'Registration Successful!'
+              err: err
             });
+            return;
+          }
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.json({
+            success: true,
+            status: 'Registration Successful!'
           });
         });
-      }
-    });
+      });
+    }
+  });
 });
 
-userRouter.post('/login', cors.corsWithOptions, passport.authenticate('local'), (req, res)=>{
-  const token = authenticate.getToken({_id:req.user._id});
-  res.statusCode = 200;
-  res.setHeader('Content-Type','application/json');
-  res.json({success:true, token:token, status:'You are logged-in successfully!'});
+userRouter.post('/login', cors.corsWithOptions, (req, res, next)=>{
+  passport.authenticate('local', (err, user, info)=>{
+    if(err){
+      return next(err);
+    }
+    if(!user){
+      res.statusCode = 401;
+      res.setHeader('Content-Type','application/json');
+      res.json({success:false, status:'Login Unsuccessful!', err: info});
+    }
+
+    req.logIn(user, err=>{
+      if(err){
+       res.statusCode = 401;
+       res.setHeader('Content-Type','application/json');
+       res.json({success:false, status:'Login Unsuccessful!', err: err});
+      }
+      else{
+        const token = authenticate.getToken({_id:req.user._id});
+        res.statusCode = 200;
+        res.setHeader('Content-Type','application/json');
+        res.json({success:true, token:token, status:'You are logged-in successfully!'});
+      }
+    }) (req, res, next);
+  });
 });
 
 userRouter.get('/logout', cors.corsWithOptions, (req, res, next)=>{
@@ -86,4 +107,22 @@ userRouter.get('/facebook/token', cors.corsWithOptions, passport.authenticate('f
     res.setHeader('Content-Type','application/json');
     res.json({success:true, token:token, status:'You are logged-in successfully!'});
   }
+});
+
+userRouter.get('/checkJWTToken', cors.corsWithOptions, (req, res, next)=>{
+  passport.use('jwt', (err, user, info)=>{
+    if(err){
+      return next(err);
+    }
+    if(!user){
+      res.statusCode = 401;
+      res.setHeader('Content-Type', 'application/json')
+      res.json({success: false, status: 'JWT Invalid!', err: info})
+    }
+    else{
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json')
+      res.json({success: true, status: 'JWT Valid!', user: user})
+    }
+  }) (req, res);
 });
