@@ -7,7 +7,7 @@
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d build",
-    "build": "react-scripts build",
+    "build": "express build",
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
