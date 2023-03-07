@@ -14,6 +14,7 @@ import leaderRouter from './routes/leaderRouter.js';
 import cors from 'cors';
 import favoriteRouter from './routes/favoriteRouter.js';
 import commentRouter from './routes/commentRouter.js';
+
 const url = config.mongoUrl;
 const connect = mongoose.connect(url);
 
@@ -45,7 +46,6 @@ const __dirname = path.dirname(__filename);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -53,7 +53,6 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(passport.initialize());
 app.use(cors());
-
 app.use('/', indexRouter);
 // authentications
 
@@ -65,7 +64,7 @@ app.use('/comments', commentRouter)
 app.use('/promotions',promoRouter);
 app.use('/leaders',leaderRouter);
 app.use('/imageUpload',uploadRouter);
-app.use('/favourites', favoriteRouter);
+app.use('/favorites', favoriteRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));

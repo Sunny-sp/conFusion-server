@@ -13,7 +13,6 @@ dishRouter.route('/')
 })
 .get(cors.openCors, (req, res, next)=>{
     Dishes.find(req.query)
-    .populate('comments.author')
     .then(dishes=>{
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
@@ -52,7 +51,6 @@ dishRouter.route('/:dishId')
 })
 .get(cors.openCors, (req, res, next)=>{
     Dishes.findById(req.params.dishId)
-    .populate('comments.author')
     .then(dish=>{
         res.statusCode = 200;
         res.setHeader('Content-Type','application/json');
