@@ -5,9 +5,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "predeploy": "npm run build",
+    "build": "npm run build",
     "deploy": "gh-pages -d build",
-    "build": "express build",
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
