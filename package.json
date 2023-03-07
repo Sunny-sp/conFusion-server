@@ -1,9 +1,13 @@
 {
   "name": "confusionserver",
+  "homepage": "https://sunny-sp.github.io/confusion-server/",
   "version": "0.0.0",
   "type": "module",
   "private": true,
   "scripts": {
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d build",
+    "build": "react-scripts build",
     "start": "nodemon ./bin/www"
   },
   "dependencies": {
