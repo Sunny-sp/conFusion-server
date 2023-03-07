@@ -6,7 +6,7 @@ const commentSchema = new Schema({
         type: Number,
         min: 1,
         max: 5,
-        required:  true
+        required: true
     },
     comment:{
         type: String,
@@ -16,7 +16,7 @@ const commentSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
-    dish:{
+    dishId:{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Dish'
     }

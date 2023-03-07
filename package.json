@@ -16,7 +16,9 @@
   },
   "devDependencies": {
     "@lmaj/passport-facebook-token": "^4.0.0",
+    "connect-flash": "^0.1.1",
     "cors": "^2.8.5",
+    "crypto": "^1.0.1",
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^6.8.4",

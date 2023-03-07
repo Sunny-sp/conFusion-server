@@ -9,12 +9,32 @@ import User from "./models/user.js";
 import { Strategy as LocalStrategy } from 'passport-local';
 import config from "./config.js";
 import PassportFacebookToken from "@lmaj/passport-facebook-token";
+
 // passport authentication configuration
 // make sure you import in app.js file before using passport.authenticate() function (import './authenticate)
 // serialize and deserialize will use salt and mix it with username or password and make a hash data
 // check in database
 
-passport.use(new LocalStrategy(User.authenticate()));
+// short way of local authentication using passport-local-mongoose
+// passport.use(new LocalStrategy(User.authenticate()));
+
+/**
+ * making "hashSaltField": true in User.FindByUsername();
+ */
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+      User.findByUsername(username, true, async function (err, user) {
+        if (err) { 
+            return done(err);
+        }
+        if (!user) {
+            return done(null, false);
+        }
+        return done(null, user);
+      });
+    }
+));
+
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 

@@ -96,6 +96,7 @@ commentRouter.route('/:commentId')
             else{
                 const err = new Error('You are not allowed to edit this comment!');
                 err.statusCode = 403;
+                res.json({err: err});
                 return next(err);
             }
         }
@@ -112,20 +113,25 @@ commentRouter.route('/:commentId')
     .then(comment => {
         if(comment !== null){
             if(comment.author.equals(req.user._id)){
-                Comments.findByIdAndRemove(req.params._id)
-                res.statusCode = 200;
-                res.setHeader('Content-type', 'application/json');
-                res.json(comment);
+                Comments.findByIdAndRemove(comment._id)
+                    .then(comment => {
+                        res.statusCode = 200;
+                        res.setHeader('Content-type', 'application/json');
+                        res.json(comment);
+                    })
+                    .catch( err => res.json({error: err}));
             }
             else{
                 const err = new Error('You are not allowed to delete this comment!');
                 err.statusCode = 403;
+                res.json({err: err});
                 return next(err);
             }
         }
         else{
             const err = new Error('Comment with commentId: ' + req.params.commentId+ 'not found!');
             err.statusCode = 404;
+            res.json({err: err});
             return next(err);
         }
     })

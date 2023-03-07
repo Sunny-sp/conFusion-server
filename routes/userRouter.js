@@ -4,6 +4,7 @@ import passport from "passport";
 import User from "../models/user.js";
 import * as authenticate from '../authenticate.js';
 import * as cors from './cors.js';
+import crypto from 'crypto';
 
 const userRouter = express.Router();
 userRouter.use(bodyParser.json());
@@ -25,9 +26,7 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
     if (err) {
       res.statusCode = 500;
       res.setHeader('Content-Type', 'application/json');
-      res.json({
-        err: err
-      });
+      res.json({err: err});
     } else {
       if (req.body.firstname) {
         user.firstname = req.body.firstname;
@@ -40,48 +39,73 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
           if (err) {
             res.statusCode = 500;
             res.setHeader('Content-Type', 'application/json');
-            res.json({
-              err: err
-            });
-            return;
+            res.json({success: false, err: err});
           }
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json');
           res.json({
             success: true,
-            status: 'Registration Successful!'
+            status: 'SignUp Successful!'
           });
         });
       });
     }
   });
 });
-
 userRouter.post('/login', cors.corsWithOptions, (req, res, next)=>{
-  passport.authenticate('local', (err, user, info)=>{
+    passport.authenticate('local', (err, user, info)=>{
     if(err){
       return next(err);
     }
     if(!user){
       res.statusCode = 401;
       res.setHeader('Content-Type','application/json');
-      res.json({success:false, status:'Login Unsuccessful!', err: info});
+      res.json({success:false, status:'Login Unsuccessful!', err: 'No user found!'});
     }
-
-    req.logIn(user, err=>{
-      if(err){
-       res.statusCode = 401;
-       res.setHeader('Content-Type','application/json');
-       res.json({success:false, status:'Login Unsuccessful!', err: err});
+    else if(user){
+      let isPasswordSame = false;
+      // default 'hashOptions' values used by passport-local-mongoose module
+      // using the same values below to generate the same hash value and validate the password
+      const hashOptions={
+        iterations: 25000,
+        keylen: 512,
+        digest: 'sha256',
       }
-      else{
-        const token = authenticate.getToken({_id:req.user._id});
-        res.statusCode = 200;
+      const newhash = crypto.pbkdf2Sync(req.body.password, user.salt, hashOptions.iterations,
+        hashOptions.keylen, hashOptions.digest, (err, derivedKey)=>{
+          if(err){
+              throw err;
+          }
+          else{
+              return derivedKey;
+          }
+      });
+      isPasswordSame = user.hash === newhash.toString('hex');
+      if(!isPasswordSame){
+        res.statusCode = 401;
         res.setHeader('Content-Type','application/json');
-        res.json({success:true, token:token, status:'You are logged-in successfully!'});
+        res.json({success:false, status:'Login Unsuccessful!', err: 'Please provide valid password!'});
       }
-    }) (req, res, next);
-  });
+      else {
+        req.logIn(user, err=>{
+          if(err){
+            console.log('middleware logIn: ')
+            res.statusCode = 401;
+            res.setHeader('Content-Type','application/json');
+            res.json({success:false, status:'Login Unsuccessful!', err: err});
+            return next(err);
+          }
+          else{
+            console.log('middleware logIn: ')
+            const token = authenticate.getToken({_id:req.user._id});
+            res.statusCode = 200;
+            res.setHeader('Content-Type','application/json');
+            res.json({success:true, token:token, status:'You are logged-in successfully!'});
+          }
+        });
+      }
+    }
+  })(req, res, next);
 });
 
 userRouter.get('/logout', cors.corsWithOptions, (req, res, next)=>{
