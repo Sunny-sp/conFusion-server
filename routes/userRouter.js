@@ -53,7 +53,7 @@ userRouter.post('/signup', cors.corsWithOptions, (req, res, next) => {
   });
 });
 userRouter.post('/login', cors.corsWithOptions, (req, res, next)=>{
-    passport.authenticate('local', async (err, user, info)=>{
+    passport.authenticate('local', (err, user, info)=>{
     if(err){
       return next(err);
     }

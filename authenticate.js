@@ -9,14 +9,13 @@ import User from "./models/user.js";
 import { Strategy as LocalStrategy } from 'passport-local';
 import config from "./config.js";
 import PassportFacebookToken from "@lmaj/passport-facebook-token";
-import bcrypt from 'bcryptjs';
-import crypto, { pbkdf2Sync } from 'crypto';
-import pbkdf2 from "pbkdf2";
+
 // passport authentication configuration
 // make sure you import in app.js file before using passport.authenticate() function (import './authenticate)
 // serialize and deserialize will use salt and mix it with username or password and make a hash data
 // check in database
 
+// short way of local authentication using passport-local-mongoose
 // passport.use(new LocalStrategy(User.authenticate()));
 
 /**
