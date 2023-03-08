@@ -8,8 +8,8 @@
     "predeploy": "npm run build",
     "build": "rollup -c rollup.config.js",
     "deploy": "gh-pages -d build",
-    "start": "nodemon ./bin/www",
-    "start:dev": "nodemon ./build/index"
+    "start": "node ./bin/www",
+    "start:dev": "node ./build/index"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
