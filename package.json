@@ -5,11 +5,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "predeploy": "npm run build",
-    "build": "rollup -c rollup.config.js",
-    "deploy": "gh-pages -d build",
-    "start": "node ./bin/www",
-    "start:dev": "node ./build/index"
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "cookie-parser": "~1.4.4",
