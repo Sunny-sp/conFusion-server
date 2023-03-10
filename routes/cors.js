@@ -13,4 +13,4 @@ export const corsOptionsDelegate = {
 }
 
 export const openCors = cors();
-export const corsWithOptions = cors(corsOptionsDelegate);
+export const corsWithOptions = cors();
