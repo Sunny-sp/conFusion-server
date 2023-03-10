@@ -19,7 +19,8 @@ export default {
                 targets: [
                     { src: 'public', dest: 'build' },
                     { src: 'bin/certificate.pem', dest: 'build' },
-                    { src: 'bin/private.key', dest: 'build' }
+                    { src: 'bin/private.key', dest: 'build' },
+                    {src: './package.json', dest: 'build'}
                 ]
             }
         )
