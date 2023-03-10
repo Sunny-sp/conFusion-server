@@ -15,7 +15,7 @@ import cors from 'cors';
 import favoriteRouter from './routes/favoriteRouter.js';
 import commentRouter from './routes/commentRouter.js';
 
-const url = config.mongoUrl;
+const url = "mongodb+srv://Sunny:3KjbiflU5WKxSU6r@atlascluster.tjkos8d.mongodb.net/test"
 const connect = mongoose.connect(url);
 
 connect.then(db=>{
